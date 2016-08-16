@@ -2,12 +2,10 @@
 
 _=[[
 	[ -d results ] || mkdir results
-	for beha in "native" "meta"; do
+	for beha in "meta" "native"; do
 		echo "# ------------------------------------- # $beha #"
 		for lua in lua5.1 lua5.2 lua5.3 luajit-2.0 luajit-2.1; do
-#			echo "# follow $beha behavior on $lua"
 			if ! command -v "$lua" >/dev/null 2>&-; then
-#				echo "- $lua not available"
 				continue
 			fi
 			d="results/${beha}"
@@ -24,12 +22,8 @@ local function stat(a)
 	print((collectgarbage("count")/1024).."MB", a and a or "")
 end
 
-do -- #############################################################################
-
 stat("enter in the block")
-
 local meta = require "meta"
-
 stat("after require'meta'")
 
 local getmetatable, setmetatable = getmetatable, setmetatable
@@ -42,12 +36,8 @@ if _VERSION=="Lua 5.2" then
 end
 
 local A = {}
-
 stat()
-
-local total= tonumber(arg[2] or 100000)
-assert(total)
-
+local total = assert( tonumber(arg[2] or 100000) )
 for i=1,total do
 	A[i] = setmetatable({}, { __test=("x"):rep(1024) })
 end
@@ -76,5 +66,5 @@ end --#######################################
 collectgarbage() collectgarbage()
 stat("outside of the block")
 -- require"package".loaded.meta = nil
--- stat("unlock meta module")
+-- stat("unload meta module")
 
