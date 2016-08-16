@@ -61,8 +61,6 @@ stat("before collect")
 collectgarbage() collectgarbage()
 stat("after collect; inside the block")
 
-end --#######################################
-
 collectgarbage() collectgarbage()
 stat("outside of the block")
 -- require"package".loaded.meta = nil
