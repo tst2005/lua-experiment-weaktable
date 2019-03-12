@@ -19,7 +19,7 @@ _=[[
 ]]
 
 local function stat(a)
-	print((collectgarbage("count")/1024).."MB", a and a or "")
+	print( ("%0.3f MiB"):format(collectgarbage("count")/1024), a and a or "")
 end
 
 stat("enter in the block")
@@ -35,20 +35,37 @@ if _VERSION=="Lua 5.2" then
 	collectgarbage("generational")
 end
 
-local A = {}
-stat()
-local total = assert( tonumber(arg[2] or 100000) )
-for i=1,total do
-	A[i] = setmetatable({}, { __test=("x"):rep(1024) })
+	local B = {}
+	stat()
+	local total = assert( tonumber(arg[2]) or 100000 )
+	for i=1,total do
+		B[i] = setmetatable({"b"..i}, { __test=("x"):rep(1024) })
+	end
+
+for I=1,3 do
+
+	local A = {}
+	stat()
+	local total = assert( tonumber(arg[2]) or 100000 )
+	for i=1,total do
+		A[i] = setmetatable({I..i}, { __test=("x"):rep(1024) })
+	end
+
+	local x = tostring(assert(getmetatable(A[1])))
+	collectgarbage() collectgarbage()
+	assert(x==tostring(getmetatable(A[1])))
+
+	A=nil
+
+	stat("drop A, no more reference (before collect)")
+	collectgarbage() collectgarbage()
+	stat("after dual-collect")
 end
 
-local x = tostring(assert(getmetatable(A[1])))
-collectgarbage() collectgarbage()
-assert(x==tostring(getmetatable(A[1])))
+B=nil
 
-A=nil
 
-stat("drop A, no more reference (before collect)")
+stat("drop A|B, no more reference (before collect)")
 collectgarbage() collectgarbage()
 stat("<--- after dual-collect (at this step the weak table is empty, memory should be returned to a normal level)")
 
